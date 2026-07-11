@@ -1,0 +1,14 @@
+{
+  "name": "tetris-battle-lobby",
+  "version": "1.0.0",
+  "description": "A neon Tetris battle lobby with room creation and ready-state sync.",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.3",
+    "socket.io": "^4.7.5"
+  }
+}

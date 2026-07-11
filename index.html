@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TETRIS BATTLE</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="battle-app">
+      <div class="game-settings" id="gameSettings">
+        <button
+          class="settings-toggle-button"
+          id="settingsToggleButton"
+          type="button"
+          aria-expanded="false"
+          aria-controls="gameSettingsPanel"
+        >
+          설정
+        </button>
+        <div class="settings-panel is-hidden" id="gameSettingsPanel">
+          <div class="settings-row">
+            <span>음악</span>
+            <button class="music-toggle-button" id="musicToggleButton" type="button" aria-pressed="true">ON</button>
+          </div>
+          <div class="settings-section volume-settings">
+            <div class="settings-row">
+              <label for="musicVolumeInput">VOLUME</label>
+              <output class="volume-value" id="musicVolumeValue" for="musicVolumeInput">55 dB</output>
+            </div>
+            <input
+              class="music-volume-range"
+              id="musicVolumeInput"
+              type="range"
+              min="0"
+              max="65"
+              value="55"
+              step="1"
+              aria-label="Music volume, maximum 65 decibels"
+            />
+            <p class="volume-hint">MAX 65 dB</p>
+          </div>
+          <div class="settings-section">
+            <span>AI 난이도</span>
+            <div class="ai-difficulty-options" id="aiDifficultyOptions" aria-label="AI 난이도 선택">
+              <button type="button" data-ai-difficulty="easy">쉬움</button>
+              <button type="button" data-ai-difficulty="normal">중간</button>
+              <button type="button" data-ai-difficulty="hard">어려움</button>
+              <button type="button" data-ai-difficulty="hardcore">하드코어</button>
+            </div>
+            <p id="aiDifficultyHint">하드코어는 우승 30회에 열립니다.</p>
+          </div>
+          <div class="settings-section">
+            <label for="rewardCodeInput">코드</label>
+            <div class="reward-code-form">
+              <input id="rewardCodeInput" type="text" autocomplete="off" placeholder="코드 입력" />
+              <button id="applyRewardCodeButton" type="button">확인</button>
+            </div>
+            <p id="rewardCodeFeedback">상점 코드를 입력하세요.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="economy-toolbar" id="economyToolbar" aria-label="상점과 코인">
+        <div class="coin-balance">
+          <span>COIN</span>
+          <strong id="coinBalanceText">0</strong>
+          <small id="winCountText">우승 0</small>
+        </div>
+        <button id="openShopButton" type="button">상점</button>
+        <button id="openInventoryButton" type="button">인벤토리</button>
+      </div>
+
+      <section class="economy-modal is-hidden" id="economyModal" aria-label="상점과 인벤토리">
+        <div class="economy-dialog">
+          <header class="economy-header">
+            <div>
+              <p id="economyKicker">STORE</p>
+              <h2 id="economyTitle">상점</h2>
+            </div>
+            <button id="closeEconomyButton" type="button">닫기</button>
+          </header>
+          <div class="economy-wallet">
+            <div>
+              <span>보유 코인</span>
+              <strong id="modalCoinBalanceText">0</strong>
+            </div>
+            <div>
+              <span>우승 횟수</span>
+              <strong id="modalWinCountText">0</strong>
+            </div>
+          </div>
+          <div class="economy-tabs" role="tablist" aria-label="상점과 인벤토리 전환">
+            <button class="is-active" id="economyShopTab" type="button">상점</button>
+            <button id="economyInventoryTab" type="button">인벤토리</button>
+          </div>
+          <p class="economy-feedback" id="economyFeedback">AI 난이도에 따라 승리 보상이 달라집니다.</p>
+          <p class="shop-rotation-note is-hidden" id="shopRotationText">상점 상품은 5분마다 바뀝니다.</p>
+          <div class="economy-items" id="economyItems"></div>
+        </div>
+      </section>
+
+      <section class="battle-home" id="homeScreen" aria-label="경쟁전 로비 첫 화면">
+        <div class="battle-hero">
+          <p class="battle-kicker">LAST PLAYER STANDING</p>
+          <h1>TETRIS BATTLE</h1>
+          <p class="battle-subtitle">1인 연습부터 최대 5인 경쟁전까지, 방을 만들고 준비한 뒤 바로 시작하세요.</p>
+        </div>
+
+        <div class="home-panel">
+          <label class="field-label" for="nicknameInput">닉네임</label>
+          <input
+            id="nicknameInput"
+            class="nickname-input"
+            type="text"
+            maxlength="16"
+            placeholder="Player 1"
+            autocomplete="nickname"
+          />
+
+          <div class="mode-header">
+            <span>MODE SELECT</span>
+            <strong id="selectedModeLabel">모드를 선택하세요</strong>
+          </div>
+
+          <div class="mode-grid" id="modeGrid" aria-label="게임 모드 선택">
+            <button class="mode-button" type="button" data-mode="solo">
+              <strong>1인 플레이</strong>
+              <span>혼자 연습 모드</span>
+            </button>
+            <button class="mode-button" type="button" data-mode="duo">
+              <strong>2인 대전</strong>
+              <span>친구 1명과 대결</span>
+            </button>
+            <button class="mode-button" type="button" data-mode="trio">
+              <strong>3인 대전</strong>
+              <span>3명이 경쟁</span>
+            </button>
+            <button class="mode-button" type="button" data-mode="squad">
+              <strong>4인 대전</strong>
+              <span>최대 4명 경쟁</span>
+            </button>
+            <button class="mode-button" type="button" data-mode="quint">
+              <strong>5인 대전</strong>
+              <span>최대 5명 경쟁</span>
+            </button>
+          </div>
+
+          <div class="room-actions is-hidden" id="roomActions">
+            <button class="primary-action" id="createRoomButton" type="button">방 만들기</button>
+            <button class="secondary-action" id="showJoinButton" type="button">방 참가하기</button>
+          </div>
+
+          <div class="join-panel is-hidden" id="joinPanel">
+            <label class="field-label" for="roomCodeInput">방 코드</label>
+            <div class="join-row">
+              <input id="roomCodeInput" class="room-code-input" type="text" maxlength="6" placeholder="ABC123" />
+              <button class="secondary-action" id="joinRoomButton" type="button">참가</button>
+              <button class="ghost-action" id="spectateRoomButton" type="button">관전</button>
+            </div>
+          </div>
+
+          <p class="connection-note" id="connectionNote">서버 연결을 확인하는 중입니다.</p>
+          <p class="lobby-error" id="lobbyError" role="alert"></p>
+        </div>
+      </section>
+
+      <section class="battle-lobby is-hidden" id="lobbyScreen" aria-label="경쟁전 방 로비">
+        <button class="lobby-home-icon-button" id="lobbyHomeIconButton" type="button" aria-label="홈으로 돌아가기" title="홈으로 돌아가기">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 11.5 12 4l9 7.5" />
+            <path d="M5.5 10.5V20h13v-9.5" />
+            <path d="M9.5 20v-6h5v6" />
+          </svg>
+        </button>
+        <header class="lobby-topbar">
+          <div>
+            <p class="battle-kicker">TETRIS BATTLE</p>
+            <h2 id="lobbyModeTitle">4인 대전</h2>
+          </div>
+          <div class="room-code-box">
+            <span>ROOM CODE</span>
+            <strong id="roomCodeDisplay">------</strong>
+          </div>
+          <div class="lobby-top-actions">
+            <button class="secondary-action" id="copyInviteButton" type="button">접속 주소 복사</button>
+            <button class="ghost-action" id="backHomeButton" type="button">나가기</button>
+          </div>
+        </header>
+
+        <section class="lobby-stage">
+          <article class="my-player-card" id="myPlayerCard">
+            <div class="card-head">
+              <span class="player-number" id="myPlayerNumber">P1</span>
+              <span class="status-pill waiting" id="myStatusText">WAITING</span>
+            </div>
+            <h3 id="myNickname">Player 1</h3>
+            <div class="large-preview-board" id="myPreviewBoard" aria-label="내 보드 미리보기"></div>
+            <div class="elimination-zone">ELIMINATION MARK</div>
+            <div class="share-link-panel" aria-label="친구 초대 링크">
+              <div>
+                <span>SHARE LINK</span>
+                <p id="shareLinkText">방을 만들면 공유 링크가 표시됩니다.</p>
+              </div>
+              <button class="share-copy-button" id="copyLobbyLinkButton" type="button">복사</button>
+            </div>
+            <div class="lobby-qr-panel" aria-label="휴대폰 접속 QR 코드">
+              <div>
+                <span>PHONE QR</span>
+                <p id="lobbyQrHint">같은 와이파이에서 휴대폰으로 스캔하세요.</p>
+              </div>
+              <canvas id="lobbyQrCanvas" width="180" height="180"></canvas>
+            </div>
+          </article>
+
+          <aside class="opponent-panel" aria-label="플레이어 슬롯">
+            <div class="opponent-heading">
+              <span>PLAYER SLOTS</span>
+              <strong id="playerCountText">1 / 4</strong>
+            </div>
+            <div class="player-slots" id="playerSlots"></div>
+          </aside>
+        </section>
+
+        <section class="lobby-controls">
+          <button class="ready-button" id="readyButton" type="button">READY</button>
+          <button class="start-game-button" id="startGameButton" type="button" disabled>START GAME</button>
+          <p class="start-hint" id="startHint">모든 플레이어가 입장하고 준비하면 방장이 시작할 수 있습니다.</p>
+        </section>
+      </section>
+
+      <section class="game-shell is-hidden" id="gameScreen" aria-label="테트리스 게임">
+        <button class="game-menu-button" id="returnMenuButton" type="button">메뉴로 돌아가기</button>
+
+        <div class="game-room-code-panel is-hidden" id="gameRoomCodePanel" aria-label="관전 코드">
+          <span>WATCH CODE</span>
+          <strong id="gameRoomCodeText">------</strong>
+          <button id="copyGameInviteButton" type="button">복사</button>
+        </div>
+
+        <section class="hud-panel hud-panel-left" aria-label="현재 기록">
+          <div class="stat-line">
+            <span>Your level:</span>
+            <strong id="level">0</strong>
+          </div>
+          <div class="stat-line">
+            <span>Full lines:</span>
+            <strong id="lines">0</strong>
+          </div>
+          <div class="score-block">
+            <span>SCORE</span>
+            <strong id="score">0</strong>
+          </div>
+          <div class="score-block combo-score-block" id="comboBlock">
+            <span>COMBO</span>
+            <strong id="combo">0</strong>
+          </div>
+          <div class="score-block">
+            <span>MAX COMBO</span>
+            <strong id="maxCombo">0</strong>
+          </div>
+          <div class="score-block best-score-block">
+            <span>BEST</span>
+            <strong id="highScore">0</strong>
+          </div>
+          <div class="help-block" aria-label="조작키">
+            <h2>HELP</h2>
+            <p><kbd>←</kbd> / <kbd>A</kbd> Left</p>
+            <p><kbd>→</kbd> / <kbd>D</kbd> Right</p>
+            <p><kbd>↑</kbd> / <kbd>W</kbd> Rotate</p>
+            <p><kbd>↓</kbd> / <kbd>S</kbd> Down</p>
+            <p><kbd>SPACE</kbd> Drop</p>
+            <p><kbd>P</kbd> Pause</p>
+          </div>
+        </section>
+
+        <section class="board-column" aria-label="플레이 보드">
+          <div class="board-frame">
+            <canvas id="board" width="300" height="600"></canvas>
+            <div class="combo-popup" id="comboPopup" aria-hidden="true">
+              <strong>COMBO</strong>
+              <span id="comboPopupDetail">x2</span>
+            </div>
+            <div class="game-message is-visible" id="gameMessage">
+              <p id="messageTitle">Play TETRIS?</p>
+              <div class="result-ranking is-hidden" id="resultRanking" aria-label="경기 순위"></div>
+              <p class="result-reward is-hidden" id="resultRewardText">승리 보상</p>
+              <p class="rematch-status is-hidden" id="rematchStatusText">다시하기 대기 중</p>
+              <button id="startButton" type="button">START</button>
+              <div class="result-actions is-hidden" id="resultActions">
+                <button id="rematchButton" type="button">다시 플레이</button>
+                <button id="resultMenuButton" type="button">로비로 가기</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="hud-panel hud-panel-right" aria-label="다음 블록과 통계">
+          <h2>STATISTICS</h2>
+          <div class="next-block">
+            <span>Next:</span>
+            <canvas id="next" width="120" height="120"></canvas>
+          </div>
+          <div class="piece-stats" id="pieceStats" aria-label="블록별 등장 횟수"></div>
+        </section>
+
+        <section class="opponent-screens" id="opponentScreens" aria-label="상대 플레이어 화면"></section>
+      </section>
+    </main>
+
+    <nav class="touch-controls is-hidden" id="touchControls" aria-label="모바일 조작">
+      <div class="touch-pad touch-pad-move" aria-label="이동 버튼">
+        <button class="touch-button touch-button-left" type="button" data-action="left" aria-label="왼쪽">
+          <span class="touch-icon">←</span>
+          <span class="touch-label">LEFT</span>
+        </button>
+        <button class="touch-button touch-button-down" type="button" data-action="down" aria-label="아래">
+          <span class="touch-icon">↓</span>
+          <span class="touch-label">DOWN</span>
+        </button>
+        <button class="touch-button touch-button-right" type="button" data-action="right" aria-label="오른쪽">
+          <span class="touch-icon">→</span>
+          <span class="touch-label">RIGHT</span>
+        </button>
+      </div>
+      <div class="touch-pad touch-pad-actions" aria-label="액션 버튼">
+        <button class="touch-button touch-button-rotate" type="button" data-action="rotate" aria-label="회전">
+          <span class="touch-icon">↻</span>
+          <span class="touch-label">ROTATE</span>
+        </button>
+        <button class="touch-button touch-button-drop" type="button" data-action="drop" aria-label="바로 떨어뜨리기">
+          <span class="touch-icon">⤓</span>
+          <span class="touch-label">DROP</span>
+        </button>
+        <button class="touch-button touch-button-pause" type="button" data-action="pause" aria-label="일시정지">
+          <span class="touch-icon">Ⅱ</span>
+          <span class="touch-label">PAUSE</span>
+        </button>
+      </div>
+    </nav>
+
+    <script src="script.js"></script>
+  </body>
+</html>
