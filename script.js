@@ -2433,22 +2433,17 @@ function selectMode(mode) {
 }
 
 function renderHome() {
-  const singlePlayerOnly = !shouldLoadSocketClient();
-  if (singlePlayerOnly && lobbyState.selectedMode && lobbyState.selectedMode !== "solo") {
-    lobbyState.selectedMode = null;
-    lobbyState.maxPlayers = 1;
-  }
+  const localAiBattleMode = !shouldLoadSocketClient();
 
   modeButtons.forEach((button) => {
-    const unavailable = singlePlayerOnly && button.dataset.mode !== "solo";
-    button.classList.toggle("is-hidden", unavailable);
-    button.disabled = unavailable;
+    button.classList.remove("is-hidden");
+    button.disabled = false;
     button.classList.toggle("is-selected", button.dataset.mode === lobbyState.selectedMode);
   });
 
   if (battleSubtitle) {
-    battleSubtitle.textContent = singlePlayerOnly
-      ? "어디서나 바로 즐길 수 있는 1인 테트리스입니다."
+    battleSubtitle.textContent = localAiBattleMode
+      ? "1인 플레이부터 최대 5인 AI 배틀까지 바로 즐길 수 있습니다."
       : "1인 연습부터 최대 5인 경쟁전까지, 방을 만들고 준비한 뒤 바로 시작하세요.";
   }
 
@@ -2456,9 +2451,9 @@ function renderHome() {
     ? getModeConfig().label
     : "모드를 선택하세요";
   roomActions.classList.toggle("is-hidden", !lobbyState.selectedMode);
-  createRoomButton.textContent = singlePlayerOnly ? "1인 게임 시작" : "방 만들기";
-  showJoinButton.classList.toggle("is-hidden", singlePlayerOnly);
-  if (singlePlayerOnly) {
+  createRoomButton.textContent = localAiBattleMode ? "AI 배틀 만들기" : "방 만들기";
+  showJoinButton.classList.toggle("is-hidden", localAiBattleMode);
+  if (localAiBattleMode) {
     joinPanel.classList.add("is-hidden");
   }
 }
@@ -2497,7 +2492,7 @@ function createLocalRoom() {
   });
 
   if (config.maxPlayers > 1) {
-    setLobbyError("친구와 같이 하려면 npm start로 서버를 실행해야 합니다.");
+    setLobbyError("빈 슬롯의 + 버튼으로 AI를 추가해 최대 인원을 채우세요.");
   }
 }
 
