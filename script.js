@@ -2433,8 +2433,6 @@ function selectMode(mode) {
 }
 
 function renderHome() {
-  const localAiBattleMode = !shouldLoadSocketClient();
-
   modeButtons.forEach((button) => {
     button.classList.remove("is-hidden");
     button.disabled = false;
@@ -2442,20 +2440,15 @@ function renderHome() {
   });
 
   if (battleSubtitle) {
-    battleSubtitle.textContent = localAiBattleMode
-      ? "1인 플레이부터 최대 5인 AI 배틀까지 바로 즐길 수 있습니다."
-      : "1인 연습부터 최대 5인 경쟁전까지, 방을 만들고 준비한 뒤 바로 시작하세요.";
+    battleSubtitle.textContent = "1인 연습부터 최대 5인 경쟁전까지, 방을 만들고 준비한 뒤 바로 시작하세요.";
   }
 
   selectedModeLabel.textContent = lobbyState.selectedMode
     ? getModeConfig().label
     : "모드를 선택하세요";
   roomActions.classList.toggle("is-hidden", !lobbyState.selectedMode);
-  createRoomButton.textContent = localAiBattleMode ? "AI 배틀 만들기" : "방 만들기";
-  showJoinButton.classList.toggle("is-hidden", localAiBattleMode);
-  if (localAiBattleMode) {
-    joinPanel.classList.add("is-hidden");
-  }
+  createRoomButton.textContent = "방 만들기";
+  showJoinButton.classList.remove("is-hidden");
 }
 
 function createLocalRoom() {
