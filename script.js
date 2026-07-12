@@ -631,6 +631,7 @@ const boardFrame = document.querySelector(".board-frame");
 const comboPopup = document.querySelector("#comboPopup");
 const comboPopupDetail = document.querySelector("#comboPopupDetail");
 const homeScreen = document.querySelector("#homeScreen");
+const battleSubtitle = document.querySelector("#battleSubtitle");
 const lobbyScreen = document.querySelector("#lobbyScreen");
 const gameScreen = document.querySelector("#gameScreen");
 const touchControls = document.querySelector("#touchControls");
@@ -2432,14 +2433,34 @@ function selectMode(mode) {
 }
 
 function renderHome() {
+  const singlePlayerOnly = !shouldLoadSocketClient();
+  if (singlePlayerOnly && lobbyState.selectedMode && lobbyState.selectedMode !== "solo") {
+    lobbyState.selectedMode = null;
+    lobbyState.maxPlayers = 1;
+  }
+
   modeButtons.forEach((button) => {
+    const unavailable = singlePlayerOnly && button.dataset.mode !== "solo";
+    button.classList.toggle("is-hidden", unavailable);
+    button.disabled = unavailable;
     button.classList.toggle("is-selected", button.dataset.mode === lobbyState.selectedMode);
   });
+
+  if (battleSubtitle) {
+    battleSubtitle.textContent = singlePlayerOnly
+      ? "어디서나 바로 즐길 수 있는 1인 테트리스입니다."
+      : "1인 연습부터 최대 5인 경쟁전까지, 방을 만들고 준비한 뒤 바로 시작하세요.";
+  }
 
   selectedModeLabel.textContent = lobbyState.selectedMode
     ? getModeConfig().label
     : "모드를 선택하세요";
   roomActions.classList.toggle("is-hidden", !lobbyState.selectedMode);
+  createRoomButton.textContent = singlePlayerOnly ? "1인 게임 시작" : "방 만들기";
+  showJoinButton.classList.toggle("is-hidden", singlePlayerOnly);
+  if (singlePlayerOnly) {
+    joinPanel.classList.add("is-hidden");
+  }
 }
 
 function createLocalRoom() {
